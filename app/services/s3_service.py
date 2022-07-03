@@ -18,6 +18,7 @@ class S3Service(object):
                 print('{}| file {} doesnt exist in a bucket {}'.format(request_id, body['file_name'], body['bucket_name']))
             else:
                 print('{}| Error file {}  {}'.format(request_id, body['file_name'], str(e)))
+                raise SystemExit
         else:
             try:
                 write_file = self.s3_resource.Object(WRITE_BUCKET, body['file_name'])
