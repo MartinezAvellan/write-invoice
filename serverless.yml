@@ -3,8 +3,9 @@ service: write-invoice
 frameworkVersion: '3'
 
 custom:
-  sqs: write-invoice
-  dlq: write-invoice-dlq
+  sqs: write-invoice.fifo
+  dlq: write-invoice-dlq.fifo
+  bucket: write-invoice
 
 plugins:
   - serverless-python-requirements
@@ -52,8 +53,14 @@ resources:
                     Fn::GetAtt:
                       - "DeadLetterQueue"
                       - "Arn"
-                  maxReceiveCount: 5
+                  maxReceiveCount: 2
         DeadLetterQueue:
             Type: AWS::SQS::Queue
             Properties:
+                MessageRetentionPeriod: 604800 # 7 days in seconds
+                FifoQueue: true
                 QueueName: ${self:custom.dlq}
+        WriteBucket:
+          Type: AWS::S3::Bucket
+          Properties:
+            BucketName: ${self:custom.bucket}
